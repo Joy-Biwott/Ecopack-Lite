@@ -1,40 +1,175 @@
 {% extends 'inventory/base.html' %}
 
 {% block content %}
-<div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-        <h1>Welcome, {{ user.username }}!</h1>
-        <p class="lead">Ecopack Finished Goods Overview</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-primary">Dashboard Overview</h2>
+        <p class="text-muted mb-0">Welcome back, <strong>{{ user.username }}</strong>! Here's what's happening today.</p>
     </div>
-    <div class="col-md-4 text-end">
-         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63816.76698345955!2d36.94241067741396!3d-1.4459060701707143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f9fe7d2dad4c5%3A0x25c0ed7b8877cc42!2sExport%20Processing%20Zone%20Athi-River!5e0!3m2!1sen!2ske!4v1765182483378!5m2!1sen!2ske" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="text-end d-none d-md-block">
+        <span class="badge bg-light text-dark border p-2 shadow-sm">
+            <i class="far fa-calendar-alt me-1 text-primary"></i> {% now "l, jS F Y" %}
+        </span>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card text-white bg-success mb-3 shadow">
-            <div class="card-body text-center">
-                <h3 class="card-title"><i class="fas fa-cubes"></i> Total Finished Bales</h3>
-                <h1 class="display-4 fw-bold">{{ total_bales }}</h1>
-                <p class="card-text">In Athiriver Warehouse</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-start border-4 border-primary h-100">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted mb-1">Total Stock (Bales)</h6>
+                    <h2 class="mb-0 fw-bold text-primary">{{ total_bales }}</h2>
+                </div>
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                    <i class="fas fa-cubes fa-2x text-primary"></i>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card text-white bg-warning mb-3 shadow">
-            <div class="card-body text-center">
-                 <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
-                 <h1 class="display-4 fw-bold">{{ low_stock_count }}</h1>
-                 <p class="card-text">Varieties with less than 5 bales</p>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-start border-4 border-warning h-100">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted mb-1">Low Stock Alerts</h6>
+                    <h2 class="mb-0 fw-bold text-warning">{{ low_stock_count }}</h2>
+                </div>
+                <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-start border-4 border-success h-100">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted mb-1">Total Orders</h6>
+                    <h2 class="mb-0 fw-bold text-success">{{ total_orders }}</h2>
+                </div>
+                <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                    <i class="fas fa-shopping-cart fa-2x text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-start border-4 border-info h-100">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted mb-1">Active Clients</h6>
+                    <h2 class="mb-0 fw-bold text-info">{{ total_clients }}</h2>
+                </div>
+                <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                    <i class="fas fa-users fa-2x text-info"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row mt-3">
-    <div class="col-12 text-center">
-        <a href="{% url 'bag_list' %}" class="btn btn-primary btn-lg"><i class="fas fa-list"></i> Manage Inventory</a>
-        <a href="{% url 'bag_create' %}" class="btn btn-success btn-lg ms-2"><i class="fas fa-plus-circle"></i> Add New Stock</a>
+
+
+<div class="row">
+
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2 text-muted"></i> Recent Orders</h5>
+                <a href="{% url 'order_list' %}" class="btn btn-sm btn-outline-primary">View All Orders</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Client</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td class="fw-bold text-primary">#{{ order.id }}</td>
+                                <td>{{ order.client.name|truncatechars:20 }}</td>
+                                <td>
+                                    <span class="badge rounded-pill border me-1" style="background-color: {{ order.bag.color|lower }}; width: 10px; height: 10px; padding: 0;"></span>
+                                    {{ order.bag.variety }}
+                                </td>
+                                <td class="fw-bold">{{ order.quantity_ordered }}</td>
+                                <td class="text-muted small">{{ order.order_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3 text-black-50"></i><br>
+                                    No recent orders found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-danger"><i class="fas fa-fire-alt me-2"></i> Critical Stock</h5>
+                <a href="{% url 'bag_list' %}" class="btn btn-sm btn-outline-danger">View Inventory</a>
+            </div>
+             <ul class="list-group list-group-flush">
+                {% for bag in critical_stock %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-semibold">{{ bag.variety }}</span>
+                        <br>
+                        <small class="text-muted">
+                            <span class="badge rounded-pill border me-1" style="background-color: {{ bag.color|lower }}; width: 8px; height: 8px; padding: 0;"></span>
+                            {{ bag.color }} ({{ bag.gsm }} GSM)
+                        </small>
+                    </div>
+                    {% if bag.quantity_bales == 0 %}
+                         <span class="badge bg-danger text-uppercase">Out of Stock</span>
+                    {% else %}
+                         <span class="badge bg-warning text-dark">{{ bag.quantity_bales }} Bales Left</span>
+                    {% endif %}
+                </li>
+                {% empty %}
+                 <li class="list-group-item text-center text-muted py-4">
+                     <i class="fas fa-check-circle text-success mb-3 fa-3x"></i><br>
+                     <h6 class="fw-bold text-success">All Good!</h6>
+                     No critical stock items.
+                 </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card shadow-sm bg-light border-0">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3"><i class="fas fa-rocket me-2 text-muted"></i> Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'order_create' %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-cart-plus me-2"></i> Place New Order
+                    </a>
+                    <a href="{% url 'bag_create' %}" class="btn btn-success shadow-sm">
+                        <i class="fas fa-plus-circle me-2"></i> Add New Stock
+                    </a>
+                     <a href="{% url 'client_create' %}" class="btn btn-info text-white shadow-sm">
+                        <i class="fas fa-user-plus me-2"></i> Add New Client
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

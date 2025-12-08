@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Sum
 from .models import FinishedBag, Client, Order
 from .forms import FinishedBagForm, ClientForm, OrderForm
 
@@ -9,12 +11,40 @@ from .forms import FinishedBagForm, ClientForm, OrderForm
 
 @login_required
 def dashboard(request):
-    total_bales = sum(bag.quantity_bales for bag in FinishedBag.objects.all())
-    low_stock_count = FinishedBag.objects.filter(quantity_bales__lt=5).count()
-    return render(request, 'inventory/dashboard.html', {
+    """
+    The main command center view. Fetches key metrics and recent activity.
+    """
+    # 1. Base Queryset for bags to reuse
+    bags = FinishedBag.objects.all()
+
+    # 2. Calculate Key Metrics (KPIs)
+    # Use aggregate to calculate the sum directly in the database (much faster)
+    total_bales_data = bags.aggregate(Sum('quantity_bales'))
+    # Handle the case where there are no bags yet (returns None, so default to 0)
+    total_bales = total_bales_data['quantity_bales__sum'] or 0
+
+    low_stock_count = bags.filter(quantity_bales__lt=5).count()
+    total_clients = Client.objects.count()
+    total_orders = Order.objects.count()
+
+    # 3. Fetch Recent Activity Data
+    # Get the 5 most recent orders. use select_related to prevent extra DB queries in the template
+    recent_orders = Order.objects.select_related('client', 'bag').order_by('-id')[:5]
+
+    # Get the actual list of items that are critical (lowest stock first), limit to top 5
+    critical_stock = bags.filter(quantity_bales__lt=5).order_by('quantity_bales')[:5]
+
+    # 4. Compile context data for the template
+    context = {
         'total_bales': total_bales,
         'low_stock_count': low_stock_count,
-    })
+        'total_clients': total_clients,
+        'total_orders': total_orders,
+        'recent_orders': recent_orders,
+        'critical_stock': critical_stock,
+    }
+
+    return render(request, 'inventory/dashboard.html', context)
 
 # --- R: READ (List View) ---
 @login_required
