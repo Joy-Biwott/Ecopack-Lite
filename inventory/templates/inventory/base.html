@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -6,38 +7,60 @@
     <title>Ecopack System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/zephyr/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'dashboard' %}"> Let's Pack</a>
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+           <img src="{% static 'images/logo.png' %}" alt="Ecopack Logo" height="30" class="d-inline-block align-text-top me-2">
+           Ecopack
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           {% if user.is_authenticated %}
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold gap-lg-3">
+
+            {# --- 1. Dashboard Link (Exact Match) --- #}
+            {# We get the actual URL string for 'dashboard' and store it in variable 'dash_url' #}
+            {% url 'dashboard' as dash_url %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">Dashboard</a>
+                {# We check: Is the current path exactly equal to the dashboard URL? #}
+              <a class="nav-link {% if request.path == dash_url %}active{% endif %}" aria-current="page" href="{{ dash_url }}">Dashboard</a>
             </li>
+
+            {# --- 2. Stock Link (Partial Match) --- #}
+            {# We check: Does the current path contain '/bags/'? This covers list, add, update, and delete pages. #}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'bag_list' %}">Stock</a>
+              <a class="nav-link {% if '/bags/' in request.path %}active{% endif %}" href="{% url 'bag_list' %}">Finished Goods Stock</a>
             </li>
+
+            {# --- 3. Clients Link (Partial Match) --- #}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'client_list' %}">Clients</a>
+              <a class="nav-link {% if '/clients/' in request.path %}active{% endif %}" href="{% url 'client_list' %}">Clients</a>
             </li>
+
+            {# --- 4. Orders Link (Partial Match) --- #}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'order_list' %}">Orders</a>
+              <a class="nav-link {% if '/orders/' in request.path %}active{% endif %}" href="{% url 'order_list' %}">Orders</a>
             </li>
+             {% if user.profile.role == 'Admin' %}
+            <li class="nav-item">
+                <a class="nav-link {% if '/users/' in request.path %}active{% endif %}" href="{% url 'user_list' %}">Users</a>
+            </li>
+            {% endif %}
           </ul>
+
           <ul class="navbar-nav ms-auto">
-              <li class="nav-item rounded bg-info bg-opacity-25 px-3 text-white">
-                  <span class="nav-link text-white small">Logged in as: {{ user.username }}</span>
+              <li class="nav-item rounded bg-white bg-opacity-10 px-3 text-white d-flex align-items-center">
+                  <small><i class="fas fa-user-circle me-2"></i> {{ user.username }} ({{ user.profile.role }})</small>
               </li>
-              <li class="nav-item ms-2">
-                <form action="{% url 'logout' %}" method="post">
+              <li class="nav-item ms-3">
+                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="nav-link btn btn-link">Logout</button>
+                    <button type="submit" class="btn btn-outline-light btn-sm mt-1">Logout <i class="fas fa-sign-out-alt ms-1"></i></button>
                  </form>
             </li>
           </ul>
