@@ -1,0 +1,30 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-shopping-cart"></i> Sales Orders</h2>
+    <a href="{% url 'order_create' %}" class="btn btn-success"><i class="fas fa-cart-plus"></i> New Order</a>
+</div>
+<div class="card shadow">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>Date</th><th>Client</th><th>Item Purchased</th><th>Qty Sold</th></tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_date|date:"M d, Y" }}</td>
+                    <td class="fw-bold">{{ order.client.name }}</td>
+                    <td>
+                         {{ order.bag.get_variety_display }} - {{ order.bag.color }} ({{ order.bag.gsm }} GSM)
+                    </td>
+                    <td><span class="badge bg-primary fs-6">{{ order.quantity_ordered }} Bales</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center">No orders placed yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users"></i> Client Management</h2>
+    <a href="{% url 'client_create' %}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New Client</a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td class="fw-bold">{{ client.name }}</td>
+                    <td>{{ client.phone }}</td>
+                    <td>
+                        {% if client.email %}
+                            <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if client.address %}
+                            {{ client.address|truncatechars:30 }}
+                            <br>
+                            <div class="d-flex gap-2 mt-1">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ client.address|urlencode }}" target="_blank" class="btn btn-sm btn-outline-primary" title="View on Google Maps">
+                                    <i class="fas fa-map-marker-alt"></i> View
+                                </a>
+                                <button class="btn btn-sm btn-outline-success share-btn"
+                                        data-name="{{ client.name }}"
+                                        data-address="{{ client.address }}"
+                                        title="Share Directions with Client">
+                                    <i class="fas fa-share-alt"></i> Share
+                                </button>
+                            </div>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'client_update' client.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                        <a href="{% url 'client_delete' client.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4">No clients found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Select all buttons with the class 'share-btn'
+        const shareButtons = document.querySelectorAll('.share-btn');
+
+        shareButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                // Get client details from data attributes
+                const clientName = button.getAttribute('data-name');
+                const clientAddress = button.getAttribute('data-address');
+
+                // Create the Google Maps link
+                // We use encodeURIComponent (the JS version of urlencode) for safety
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clientAddress)}`;
+
+                // The data to be shared
+                const shareData = {
+                    title: 'Directions to ' + clientName,
+                    text: `Here are the directions to ${clientName}'s location:\n${clientAddress}\n\nGoogle Maps Link:\n`,
+                    url: mapLink
+                };
+
+                // Check if the browser supports the Web Share API
+                if (navigator.share) {
+                    try {
+                        await navigator.share(shareData);
+                        console.log('Address shared successfully');
+                    } catch (err) {
+                        console.error('Error sharing:', err);
+                    }
+                } else {
+                    // Fallback for browsers that don't support native sharing
+                    // We'll just copy the link to the clipboard
+                    try {
+                        await navigator.clipboard.writeText(`${shareData.text}${shareData.url}`);
+                        alert('Sharing not supported on this browser. The link and address have been copied to your clipboard instead!');
+                    } catch (err) {
+                        console.error('Could not copy text: ', err);
+                        alert('Sharing is not supported and could not copy to clipboard.');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-warehouse"></i> Finished Goods Inventory</h2>
+    <a href="{% url 'bag_create' %}" class="btn btn-success"><i class="fas fa-plus"></i> Add New Stock Entry</a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Variety</th>
+                    <th>Color</th>
+                    <th>GSM</th>
+                    <th>Stock (Bales)</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bag in bags %}
+                <tr>
+                    <td class="fw-bold">{{ bag.get_variety_display }}</td>
+                    <td>
+                        <span class="badge rounded-pill border text-dark" style="background-color: {{ bag.color|lower }}; {% if bag.color == 'White' or bag.color == 'Yellow' %}color: black !important;{% else %}color: white !important;{% endif %}">
+                            {{ bag.color }}
+                        </span>
+                    </td>
+                    <td>{{ bag.gsm }} GSM</td>
+                    <td>
+                        {% if bag.quantity_bales == 0 %}
+                            <span class="badge bg-danger fs-6 text-uppercase">OUT OF STOCK</span>
+                        {% elif bag.quantity_bales < 5 %}
+                            <span class="badge bg-warning text-dark fs-6">{{ bag.quantity_bales }} (Low)</span>
+                        {% else %}
+                            <span class="badge bg-success fs-6">{{ bag.quantity_bales }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted"><i class="fas fa-map-marker-alt"></i> {{ bag.location }}</td>
+                    <td>
+                        <a href="{% url 'bag_update' bag.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                        <a href="{% url 'bag_delete' bag.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4">No finished goods stock found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

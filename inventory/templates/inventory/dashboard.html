@@ -1,0 +1,40 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p class="lead">Ecopack Finished Goods Overview</p>
+    </div>
+    <div class="col-md-4 text-end">
+         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63816.76698345955!2d36.94241067741396!3d-1.4459060701707143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f9fe7d2dad4c5%3A0x25c0ed7b8877cc42!2sExport%20Processing%20Zone%20Athi-River!5e0!3m2!1sen!2ske!4v1765182483378!5m2!1sen!2ske" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3 shadow">
+            <div class="card-body text-center">
+                <h3 class="card-title"><i class="fas fa-cubes"></i> Total Finished Bales</h3>
+                <h1 class="display-4 fw-bold">{{ total_bales }}</h1>
+                <p class="card-text">In Athiriver Warehouse</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-warning mb-3 shadow">
+            <div class="card-body text-center">
+                 <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
+                 <h1 class="display-4 fw-bold">{{ low_stock_count }}</h1>
+                 <p class="card-text">Varieties with less than 5 bales</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-12 text-center">
+        <a href="{% url 'bag_list' %}" class="btn btn-primary btn-lg"><i class="fas fa-list"></i> Manage Inventory</a>
+        <a href="{% url 'bag_create' %}" class="btn btn-success btn-lg ms-2"><i class="fas fa-plus-circle"></i> Add New Stock</a>
+    </div>
+</div>
+{% endblock %}
