@@ -24,15 +24,12 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold gap-lg-3">
 
             {# --- 1. Dashboard Link (Exact Match) --- #}
-            {# We get the actual URL string for 'dashboard' and store it in variable 'dash_url' #}
             {% url 'dashboard' as dash_url %}
             <li class="nav-item">
-                {# We check: Is the current path exactly equal to the dashboard URL? #}
               <a class="nav-link {% if request.path == dash_url %}active{% endif %}" aria-current="page" href="{{ dash_url }}">Dashboard</a>
             </li>
 
             {# --- 2. Stock Link (Partial Match) --- #}
-            {# We check: Does the current path contain '/bags/'? This covers list, add, update, and delete pages. #}
             <li class="nav-item">
               <a class="nav-link {% if '/bags/' in request.path %}active{% endif %}" href="{% url 'bag_list' %}">Finished Goods Stock</a>
             </li>
@@ -46,21 +43,37 @@
             <li class="nav-item">
               <a class="nav-link {% if '/orders/' in request.path %}active{% endif %}" href="{% url 'order_list' %}">Orders</a>
             </li>
-             {% if user.profile.role == 'Admin' %}
+
+            {# --- 5. Users Link (Admin Only) --- #}
+            {# Ensure user.profile exists before checking role to avoid errors #}
+            {% if user.profile.role == 'Admin' %}
             <li class="nav-item">
                 <a class="nav-link {% if '/users/' in request.path %}active{% endif %}" href="{% url 'user_list' %}">Users</a>
             </li>
             {% endif %}
           </ul>
 
-          <ul class="navbar-nav ms-auto">
-              <li class="nav-item rounded bg-white bg-opacity-10 px-3 text-white d-flex align-items-center">
+          {# --- Right Side Menu --- #}
+          <ul class="navbar-nav ms-auto align-items-center">
+
+              {# --- NEW: Feature Request / Roadmap Link --- #}
+              {# FIX: Changed to text-warning (Yellow) for better visibility against blue background #}
+              <li class="nav-item me-3">
+                <a class="nav-link text-warning" href="{% url 'feedback_create' %}" title="Request System Expansion">
+                    <i class="fas fa-rocket fa-lg"></i>
+                    {# The text below only shows on mobile screens #}
+                    <span class="d-lg-none ms-2">Request Feature</span>
+                </a>
+              </li>
+
+              <li class="nav-item rounded bg-white bg-opacity-10 px-3 py-1 text-white d-flex align-items-center">
                 <small><i class="fas fa-user-circle me-2"></i> {{ user.username }} - {{ user.profile.role }}</small>
               </li>
+
               <li class="nav-item ms-3">
                 <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light btn-sm mt-1">Logout <i class="fas fa-sign-out-alt ms-1"></i></button>
+                <button type="submit" class="btn btn-outline-light btn-sm">Logout <i class="fas fa-sign-out-alt ms-1"></i></button>
                 </form>
               </li>
           </ul>
@@ -70,6 +83,16 @@
     </nav>
 
     <div class="container">
+        {# Display Flash Messages (Success/Error alerts) #}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}{% endblock %}
     </div>
 
